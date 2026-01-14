@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 
-export default function Header() {
+interface HeaderProps{
+  loggedIn: boolean,
+}
+
+export default function Header({loggedIn}: HeaderProps) {
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -9,8 +14,8 @@ export default function Header() {
     <header className="fixed top-0 z-50 w-full bg-[#020617]/80 backdrop-blur-xl border-b border-slate-800/50" data-aos="fade-down">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         
-        <Link 
-          to="/"
+        <Link
+          to={loggedIn? "/user":"/"}
           onClick={scrollToTop}
           className="group cursor-pointer text-left outline-none block"
         >
@@ -33,11 +38,11 @@ export default function Header() {
           </Link>
 
           <Link 
-            to="/login"
+            to={loggedIn? "/profile":"/login"}
             className="relative overflow-hidden group px-6 py-2 rounded-full border border-emerald-500/20 hover:border-emerald-500/50 transition-all block"
           >
             <span className="relative z-10 text-emerald-500 group-hover:text-white font-bold text-[10px] tracking-widest uppercase transition-colors duration-500">
-              Conecte-se
+              {loggedIn? "Perfil":"Conecte-se"}
             </span>
             <div className="absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
           </Link>

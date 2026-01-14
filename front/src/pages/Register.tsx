@@ -1,38 +1,71 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import { type ChangeEvent , useState} from 'react'
+import ErrorContent from '../components/ErrorContent.tsx';
 import {plans} from '../service/plans.ts'
-
-interface UserData{
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string,
-}
+import {type UserData, postUser} from '../service/api.ts'
+import { validateUserData } from '../service/validations.ts'
 
 export default function Register() {
+    const navigate = useNavigate()
 
-    const [userData, setUserData] = useState<UserData>({
+    const [registrationError, setRegistrationError] = useState<boolean>(false)
+    const [registrationErrorMessage, setRegistrationErrorMessage] = useState<string>("")
+    const [registerData, setRegisterData] = useState<UserData>({
         name: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        plan: localStorage.getItem("plan") || "Free",
     })
 
-    const plan = localStorage.getItem("plan")
-    const planInfo = (plan === "Free") ? `Plano Gratuito (R$ ${plans.Free.price.toFixed(2)} )` : (plan === "Premium") ? 
+    const plan: string = registerData.plan
+    const planInfo: string = (plan === "Free") ? `Plano Gratuito (R$ ${plans.Free.price.toFixed(2)} )` : (plan === "Premium") ? 
         `Plano Premium (R$ ${plans.Premium.price.toFixed(2)})` : `Plano Família (R$ ${plans.Family.price.toFixed(2)})`
 
     function updateUserData(e: ChangeEvent<HTMLInputElement>){
-        setUserData({
-            ...userData,
+        setRegisterData({
+            ...registerData,
             [e.target.name]: e.target.value
         })
+    }
 
+    async function registerUser(e: any){
+        e.preventDefault()
+        setRegistrationError(false)
+        try{
+            const dataValidationResponse = validateUserData(registerData)
+            if(!dataValidationResponse.validData){
+                setRegistrationError(true)
+                setRegistrationErrorMessage(dataValidationResponse.errorMessage)
+                return 
+            }
+            const response = await postUser(registerData)
+            if(response.error){
+                setRegistrationError(true)
+                setRegistrationErrorMessage(response.error)
+                return 
+            }
+            setRegisterData({
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+                plan: localStorage.getItem("plan") || "Free",
+            })
+            alert("Cadastro concluido com sucesso!")
+            navigate("/login")
+        }
+        catch(error){
+            console.error(error)
+            alert("Nao foi possivel concluir o cadastro!")
+            setRegistrationError(true)
+        }
     }
 
     return (
         <div className="mt-16 h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#020617] px-4">
         
+        {registrationError ? <ErrorContent onClose={() => setRegistrationError(false)} message={registrationErrorMessage}/>:null}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-900/20 blur-[120px] rounded-full"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 blur-[120px] rounded-full"></div>
@@ -56,7 +89,7 @@ export default function Register() {
                 placeholder="Seu nome"
                 name = "name"
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-600"
-                value = {userData.name}
+                value = {registerData.name}
                 onChange={(e) => updateUserData(e)}
                 autoComplete="off"
                 />
@@ -69,7 +102,7 @@ export default function Register() {
                 placeholder="seu@email.com"
                 name = "email"
                 className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-600"
-                value = {userData.email}
+                value = {registerData.email}
                 onChange={(e) => updateUserData(e)}
                 autoComplete="off"
                 />
@@ -83,7 +116,7 @@ export default function Register() {
                     placeholder="..."
                     name = "password"
                     className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-600"
-                    value = {userData.password}
+                    value = {registerData.password}
                     onChange = {(e) => updateUserData(e)}
                     autoComplete="off"
                     />
@@ -96,7 +129,7 @@ export default function Register() {
                     placeholder="..."
                     name = "confirmPassword"
                     className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-600"
-                    value = {userData.confirmPassword}
+                    value = {registerData.confirmPassword}
                     onChange = {(e) => updateUserData(e)}
                     autoComplete="off"
                     />
@@ -112,7 +145,7 @@ export default function Register() {
                 </div>
             </div>
 
-            <button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest py-3 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 transform hover:-translate-y-1 mt-2">
+            <button onClick={registerUser} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest py-3 rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] transition-all duration-300 transform hover:-translate-y-1 mt-2">
                 CRIAR CONTA
             </button>
 

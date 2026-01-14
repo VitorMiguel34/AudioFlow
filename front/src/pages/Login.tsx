@@ -1,25 +1,62 @@
 import { Link } from 'react-router-dom';
 import {useState, type ChangeEvent} from 'react'
+import ErrorContent  from '../components/ErrorContent.tsx';
+import {getUser, type UserData} from '../service/api.ts'
 
-interface UserData{
+interface loginData{
   email: string,
   password: string,
 }
 
-export default function LoginPage() {
+interface LoginPageProps{
+  setLoggedIn: (value: boolean) => void,
+  setUserData: (value: UserData) => void,
+}
 
-  const [userData, setUserData] = useState<UserData>({email: "",password: ""})
+export default function LoginPage({setLoggedIn, setUserData}: LoginPageProps) {
 
-  function updateUserData(e: ChangeEvent<HTMLInputElement>){
-    setUserData({
-      ...userData,
+  const [loginData, setLoginData] = useState<loginData>({email: "",password: ""})
+  const [loginError, setLoginError] = useState<boolean>(false)
+  const [loginErrorMessage, setLoginErrorMessage] = useState<string>('')
+
+  function updateLoginData(e: ChangeEvent<HTMLInputElement>){
+    setLoginData({
+      ...loginData,
       [e.target.name]: e.target.value
     })
   }
 
+  async function loginUser(e: any){
+    e.preventDefault()
+    setLoginError(false)
+    try{
+      const response = await getUser(loginData.email, loginData.password)
+      if(response.error){
+        setLoginError(true)
+        setLoginErrorMessage(response.data.error)
+        return 
+      }
+      const token = response.tokens.access
+      localStorage.setItem("token",token)
+      setUserData(response.user)
+      localStorage.setItem("userData",JSON.stringify(response.user))
+      setLoggedIn(true)
+      localStorage.setItem("loggedIn","true")
+      
+      localStorage.removeItem("plan")
+      setLoginData({email: "",password: "",})
+      alert("Login concluido!")
+    }
+    catch(error){
+      console.error(error)
+      setLoginError(true)
+      setLoginErrorMessage(String(error))
+    }
+  }
+
   return (
     <div className="h-screen w-full bg-[#020617] text-slate-200 flex items-center justify-center px-4 overflow-hidden">
-      
+      {loginError? <ErrorContent onClose={() => setLoginError(false)} message={loginErrorMessage}/>: null}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-900/10 blur-[120px] rounded-full"></div>
       </div>
@@ -41,10 +78,10 @@ export default function LoginPage() {
             <input 
               type="email" 
               name="email"
-              value={userData.email}
+              value={loginData.email}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
               placeholder="seu@email.com"
-              onChange={(e) => updateUserData(e)}
+              onChange={(e) => updateLoginData(e)}
             />
           </div>
 
@@ -53,15 +90,15 @@ export default function LoginPage() {
             <input 
               type="password" 
               name="password"
-              value={userData.password}
+              value={loginData.password}
               className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
               placeholder="..."
-              onChange={(e) => updateUserData(e)}
+              onChange={(e) => updateLoginData(e)}
               autoComplete="off"
             />
           </div>
 
-          <button className="w-full bg-emerald-500 text-slate-950 font-black uppercase text-[10px] tracking-[0.2em] py-3 rounded-lg hover:bg-emerald-400 transition-all active:scale-[0.98] mt-2">
+          <button onClick={loginUser} className="w-full bg-emerald-500 text-slate-950 font-black uppercase text-[10px] tracking-[0.2em] py-3 rounded-lg hover:bg-emerald-400 transition-all active:scale-[0.98] mt-2">
             Entrar
           </button>
         </form>

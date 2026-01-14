@@ -7,7 +7,7 @@ interface ProtectedRouteProps{
     redirectPage: string,
 }
 
-export function ProtectedRoute({enable, children, redirectPage="/" }: ProtectedRouteProps) {
+export default function ProtectedRoute({enable, children, redirectPage="/" }: ProtectedRouteProps) {
   if (!enable) {
     return <Navigate to={redirectPage} replace />;
   }

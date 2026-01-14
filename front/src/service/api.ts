@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const API_SONGS_URL: string = "http://127.0.0.1:8000/stream/songs/"
 const API_ARTISTS_URL: string = "http://127.0.0.1:8000/stream/artists/"
+const API_USERS_URL: string = "http://127.0.0.1:8000/users/"
 
 export interface Song{
     name: string, 
@@ -11,6 +12,13 @@ export interface Song{
     audio: string
 }
 
+export interface UserData{
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+    plan: string,
+}
 
 export async function fetchSong(song_id: number){
     try{
@@ -22,7 +30,32 @@ export async function fetchSong(song_id: number){
         }
         return song
     }
-    catch(erro){
-        console.error(erro)
+    catch(error){
+        console.error(error)
+        throw error
+    }
+}
+
+export async function postUser(userData: UserData){
+    try{
+        const response = await axios.post(`${API_USERS_URL}register/`, userData)
+        return response.data
+    }
+    catch(error){
+        console.error(error)
+        throw error
+    }
+}
+
+export async function getUser(userEmail: string, userPassword: string){
+    try{
+        const response = await axios.post(`${API_USERS_URL}login/`, {
+            email: userEmail,
+            password: userPassword,
+        })
+        return response.data
+    }
+    catch(error){
+        console.error(error)
     }
 }

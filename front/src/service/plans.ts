@@ -1,12 +1,12 @@
-interface Plan{
+export interface Plan{
     price: number,
     period: string,
     advantages: Array<string>,
     emphasis: boolean,
 }
 
-interface PlanInList extends Plan{
-    name: string,
+export interface PlanInList extends Plan{
+    name: "Free"|"Premium"|"Family",
 }
 
 export const plans: Record<string,Plan> = {

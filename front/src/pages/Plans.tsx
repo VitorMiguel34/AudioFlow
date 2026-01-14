@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom'; 
 import {plansList} from '../service/plans.ts'
+import {type UserData} from '../service/api.ts'
 
-export default function PlansPage() {
+interface PlansPageProps{
+  userData: UserData,
+}
+
+export default function PlansPage({userData}: PlansPageProps) {
   const navigate = useNavigate(); 
 
   return (
@@ -53,13 +58,14 @@ export default function PlansPage() {
                 <button 
                   onClick={() => {
                     localStorage.setItem("plan",plan.name);
-                    navigate('/register');
+                    navigate("/register")
                   }} 
+                  disabled={userData.plan === plan.name}
                   className={`mt-4 w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all
                   ${plan.emphasis 
                     ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' 
                     : 'bg-slate-800 text-white hover:bg-slate-700'}`}>
-                  Assinar agora
+                  {userData.plan === plan.name ? "Seu plano atual": "Assinar agora!"}
                 </button>
 
               </div>

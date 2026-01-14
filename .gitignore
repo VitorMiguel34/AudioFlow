@@ -1,46 +1,29 @@
-# ========================
-# GERAL DO SISTEMA & IDE
-# ========================
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 *.log
 
-# ========================
-# BACKEND (Django/Python)
-# ========================
-# Ignora arquivos compilados e caches do Python em qualquer lugar
 __pycache__/
 *.py[cod]
 
-# Ambientes Virtuais (seja venv, env, .venv)
 venv/
 env/
 .venv/
 
-# Banco de dados local (geralmente não sobe)
 db.sqlite3
 
-# Variáveis de ambiente e segredos (CRÍTICO)
 .env
 .env.*
 
-# Mídia (uploads de usuários durante testes)
 media/
 back/media/  # Reforçando caso a pasta media esteja dentro do back
 
-# ========================
-# FRONTEND (React/Node)
-# ========================
-# A pasta mais pesada do universo (Ignora se estiver em front/node_modules)
 node_modules/
 
-# Builds de produção
 build/
 dist/
 
-# Arquivos de debug/log do NPM
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

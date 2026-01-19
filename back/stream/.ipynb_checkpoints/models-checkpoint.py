@@ -1,24 +1,15 @@
 from django.db import models
-from django.conf import settings
 
 class Artist(models.Model):
     name = models.CharField(max_length = 200)
     image = models.ImageField(upload_to="artists/", null=True, blank=True)
 
-
-class Playlist(models.Model):
-    name = models.CharField(max_length=200)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='playlists')
-
-
 class Song(models.Model):
     name = models.CharField(max_length = 200)
     duration_time = models.DurationField()
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
     image = models.ImageField(upload_to="covers/", null=True, blank=True)
     audio = models.FileField(upload_to="songs/")
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='songs')
-    playlists = models.ManyToManyField(Playlist,related_name="songs")
 
     def __str__(self):
         return self.name
-    
